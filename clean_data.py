@@ -29,12 +29,16 @@ def read_with_column_subset(data_name, subset):
     header = get_names(data_name)
     include = get_inclusion(data_name)
     convert = { k:v for (k,v) in zip(include, header) }
-    df = pandas.read_csv(data_name + ".csv", index_col=0, usecols=(['UNITID'] + subset), na_values = [".", " ", ""])
+    df = pandas.read_csv(data_name + ".csv", index_col=0, usecols=(['UNITID'] + subset), na_values = [".", " ", "", "-2"])
     df.rename(columns=convert, inplace=True)
     return df
 
 def main():
-    institutional_characteristics = read_with_column_subset("ic2013", ['ADMSSN', 'APPLCN', 'SPORT1', 'ENRLM'])
+    institutional_characteristics = read_with_column_subset("ic2013", ['ADMSSN', 'APPLCN', 'SPORT1', 'ENRLM', 'SATVR25', 'SATMT25', 'SATWR25'])
+    institutional_characteristics['SAT overall 25th percentile score'] = institutional_characteristics['SAT Critical Reading 25th percentile score'] + institutional_characteristics['SAT Math 25th percentile score'] + institutional_characteristics['SAT Writing 25th percentile score']
+    del institutional_characteristics['SAT Critical Reading 25th percentile score']
+    del institutional_characteristics['SAT Math 25th percentile score']
+    del institutional_characteristics['SAT Writing 25th percentile score']
     institutional_basic_info = read_with_column_subset("hd2013", ['INSTNM', 'STABBR', 'LONGITUD', 'LATITUDE', 'CBSA', 'UGOFFER', 'HLOFFER'])
     institutional_basic_info = institutional_basic_info[(institutional_basic_info['Highest level of offering'] >= 5) & (institutional_basic_info['Undergraduate offering'] == 1)]
     del institutional_basic_info['Undergraduate offering']
@@ -47,13 +51,17 @@ def main():
     salaries_and_staff = read_with_column_subset("sal2013_is", ['SATOTLT', 'SAOUTLT']).groupby(level=0).sum()
     salaries_and_staff['Average yearly instructor compensation'] = numpy.round(salaries_and_staff['Salary outlays - total'] / salaries_and_staff['Instructional staff on 9, 10, 11 or 12 month contract-total'], 2)
 
-    financial_aid = read_with_column_subset("sal2013_is", ['UAGRNTP', 'UAGRNTA', 'UFLOANA', 'UFLOANP'])
+    financial_aid = read_with_column_subset("sfa1213", ['UAGRNTP', 'UAGRNTA', 'UFLOANA', 'UFLOANP'])
 
     output = institutional_basic_info.join(institutional_characteristics)
     output = output.join(demographics)
     output = output.join(tuition)
     output = output.join(completions, rsuffix=' Graduated')
-    output.join(salaries_and_staff).to_csv("joined.csv")
+    output = output.join(salaries_and_staff)
+    output = output.dropna()
+    output.to_csv("joined.csv")
+    import ipdb;ipdb.set_trace();
+
 
 
 if __name__ == '__main__':
