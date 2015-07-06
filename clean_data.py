@@ -1,5 +1,6 @@
 import pandas
 import os.path
+import numpy 
 
 FILES = ["effy2013",
          "hd2013",
@@ -24,23 +25,37 @@ def get_inclusion(data_name):
         raise Exception()
     return pandas.read_excel(data_name + ext, sheetname=1).varname.tolist()
 
+def read_with_column_subset(data_name, subset):
+    header = get_names(data_name)
+    include = get_inclusion(data_name)
+    convert = { k:v for (k,v) in zip(include, header) }
+    df = pandas.read_csv(data_name + ".csv", index_col=0, usecols=(['UNITID'] + subset), na_values = [".", " ", ""])
+    df.rename(columns=convert, inplace=True)
+    return df
+
 def main():
-    joined = None
-    for data_name in FILES:
-        header = get_names(data_name)
-        include = get_inclusion(data_name)
-        convert = { k:v for (k,v) in zip(include, header) }
-        df = pandas.read_csv(data_name + ".csv", index_col=0, usecols=include)
-        df.rename(columns=convert, inplace=True)
-        import ipdb; ipdb.set_trace()
-        if joined is None:
-            joined = df
-        else:
-            joined = joined.join(df)
+    institutional_characteristics = read_with_column_subset("ic2013", ['ADMSSN', 'APPLCN', 'SPORT1', 'ENRLM'])
+    institutional_basic_info = read_with_column_subset("hd2013", ['INSTNM', 'STABBR', 'LONGITUD', 'LATITUDE', 'CBSA', 'UGOFFER', 'HLOFFER'])
+    institutional_basic_info = institutional_basic_info[(institutional_basic_info['Highest level of offering'] >= 5) & (institutional_basic_info['Undergraduate offering'] == 1)]
+    del institutional_basic_info['Undergraduate offering']
+    del institutional_basic_info['Highest level of offering']
+    demographics = read_with_column_subset("effy2013", ['EFFYLEV', 'EFYTOTLT', 'EFYTOTLM', 'EFYTOTLW', 'EFYASIAT', 'EFYBKAAT', 'EFYHISPT', 'EFYNHPIT', 'EFYWHITT'])
+    demographics = demographics[demographics[u'Level of student'] == 1]
+    del demographics[u'Level of student']
+    tuition = read_with_column_subset("ic2013_ay", ['TUITION1', 'TUITION2', 'TUITION3', 'CHG4AY3', 'CHG5AY3'])
+    completions = read_with_column_subset("c2013_b", ['CSTOTLT', 'CSTOTLM', 'CSTOTLW'])
+    salaries_and_staff = read_with_column_subset("sal2013_is", ['SATOTLT', 'SAOUTLT']).groupby(level=0).sum()
+    salaries_and_staff['Average yearly instructor compensation'] = numpy.round(salaries_and_staff['Salary outlays - total'] / salaries_and_staff['Instructional staff on 9, 10, 11 or 12 month contract-total'], 2)
 
-    joined.to_csv("joined.csv")
+    financial_aid = read_with_column_subset("sal2013_is", ['UAGRNTP', 'UAGRNTA', 'UFLOANA', 'UFLOANP'])
 
+    output = institutional_basic_info.join(institutional_characteristics)
+    output = output.join(demographics)
+    output = output.join(tuition)
+    output = output.join(completions, rsuffix=' Graduated')
+    output.join(salaries_and_staff).to_csv("joined.csv")
 
 
 if __name__ == '__main__':
+
     main()
