@@ -59,7 +59,7 @@ def main():
     output = output.join(completions, rsuffix=' Graduated')
     output = output.join(salaries_and_staff)
     output = output.dropna()
-    output.to_csv("joined.csv")
+    output.to_csv("ipeds_dataset.csv")
     import ipdb;ipdb.set_trace();
 
 
