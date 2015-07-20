@@ -7,6 +7,69 @@ FILES = ["effy2013",
          "ic2013_ay",
          "sfa1213"]
 
+rel_map = {-2: 'Not applicable',
+ 22: 'American Evangelical Lutheran Church',
+ 24: 'African Methodist Episcopal Zion Church',
+ 27: 'Assemblies of God Church',
+ 28: 'Brethren Church',
+ 30: 'Roman Catholic',
+ 33: 'Wisconsin Evangelical Lutheran Synod',
+ 34: 'Christ and Missionary Alliance Church',
+ 35: 'Christian Reformed Church',
+ 36: 'Evangelical Congregational Church',
+ 37: 'Evangelical Covenant Church of America',
+ 38: 'Evangelical Free Church of America',
+ 39: 'Evangelical Lutheran Church',
+ 40: 'International United Pentecostal Church',
+ 41: 'Free Will Baptist Church',
+ 42: 'Interdenominational',
+ 43: 'Mennonite Brethren Church',
+ 44: 'Moravian Church',
+ 45: 'North American Baptist',
+ 47: 'Pentecostal Holiness Church',
+ 48: 'Christian Churches and Churches of Christ',
+ 49: 'Reformed Church in America',
+ 50: 'Episcopal Church Reformed',
+ 51: 'African Methodist Episcopal',
+ 52: 'American Baptist',
+ 54: 'Baptist',
+ 55: 'Christian Methodist Episcopal',
+ 57: 'Church of God',
+ 58: 'Church of Brethren',
+ 59: 'Church of the Nazarene',
+ 60: 'Cumberland Presbyterian',
+ 61: 'Christian Church (Disciples of Christ)',
+ 64: 'Free Methodist',
+ 65: 'Friends',
+ 66: 'Presbyterian Church (USA)',
+ 67: 'Lutheran Church in America',
+ 68: 'Lutheran Church - Missouri Synod',
+ 69: 'Mennonite Church',
+ 71: 'United Methodist',
+ 73: 'Protestant Episcopal',
+ 74: 'Churches of Christ',
+ 75: 'Southern Baptist',
+ 76: 'United Church of Christ',
+ 77: 'Protestant not specified',
+ 78: 'Multiple Protestant Denomination',
+ 79: 'Other Protestant',
+ 80: 'Jewish',
+ 81: 'Reformed Presbyterian Church',
+ 84: 'United Brethren Church',
+ 87: 'Missionary Church Inc',
+ 88: 'Undenominational',
+ 89: 'Wesleyan',
+ 91: 'Greek Orthodox',
+ 92: 'Russian Orthodox',
+ 93: 'Unitarian Universalist',
+ 94: 'Latter Day Saints (Mormon Church)',
+ 95: 'Seventh Day Adventists',
+ 97: 'The Presbyterian Church in America',
+ 99: 'Other (none of the above)',
+ 100: 'Original Free Will Baptist',
+ 102: 'Evangelical Christian',
+ 103: 'Presbyterian'}
+
 def get_names(data_name):
     if os.path.exists(data_name + ".xlsx"):
         return pandas.read_excel(data_name + ".xlsx", sheetname=1).varTitle.tolist()
@@ -54,8 +117,9 @@ def get_descriptions_subset(data_name, subset):
 
 def main():
     desc = []
-    institutional_characteristics = read_with_column_subset("ic2013", ['ADMSSN', 'APPLCN', 'SPORT1', 'ENRLM', 'SATVR25', 'SATMT25', 'SATWR25'])
-    desc.append( get_descriptions_subset("ic2013", ['ADMSSN', 'APPLCN', 'SPORT1', 'ENRLM', 'SATVR25', 'SATMT25', 'SATWR25']))
+    institutional_characteristics = read_with_column_subset("ic2013", ['ADMSSN', 'APPLCN', 'SPORT1', 'ENRLM', 'SATVR25', 'SATMT25', 'SATWR25', 'RELAFFIL'])
+    institutional_characteristics['Religious affiliation'] =institutional_characteristics['Religious affiliation'].apply(lambda x: rel_map.get(x, 'None'))
+    desc.append( get_descriptions_subset("ic2013", ['ADMSSN', 'APPLCN', 'SPORT1', 'ENRLM', 'SATVR25', 'SATMT25', 'SATWR25', 'RELAFFIL']))
     institutional_characteristics['SAT overall 25th percentile score'] = institutional_characteristics['SAT Critical Reading 25th percentile score'] + institutional_characteristics['SAT Math 25th percentile score'] + institutional_characteristics['SAT Writing 25th percentile score']
     del institutional_characteristics['SAT Critical Reading 25th percentile score']
     del institutional_characteristics['SAT Math 25th percentile score']
@@ -85,6 +149,7 @@ def main():
     output = output.join(tuition)
     output = output.join(completions, rsuffix=' Graduated')
     output = output.join(salaries_and_staff)
+    output = output.join(financial_aid)
     output = output.dropna()
     output.to_csv("ipeds_dataset.csv")
     desc_df = pandas.concat(desc)
