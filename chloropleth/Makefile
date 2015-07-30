@@ -20,7 +20,7 @@ gebco_08_rev_elev_AB_grey_geo.tif: gebco_08_rev_elev_A1_grey_geo.tif gebco_08_re
 	gdalwarp gebco_08_rev_elev_A1_grey_geo.tif gebco_08_rev_elev_B1_grey_geo.tif gebco_08_rev_elev_AB_grey_geo.tif
 
 gebco_08_rev_elev_AB_grey_geo_resampled.tif: gebco_08_rev_elev_AB_grey_geo.tif
-	gdalwarp -tr 0.1 -0.1 -r average gebco_08_rev_elev_AB_grey_geo.tif gebco_08_rev_elev_AB_grey_geo_resampled.tif
+	gdalwarp -tr 0.05 -0.05 -r average gebco_08_rev_elev_AB_grey_geo.tif gebco_08_rev_elev_AB_grey_geo_resampled.tif
 
 gebco_08_rev_elev_AB_grey_geo_resampled_mercador.tif: gebco_08_rev_elev_AB_grey_geo_resampled.tif
 	gdalwarp -t_srs EPSG:3857 gebco_08_rev_elev_AB_grey_geo_resampled.tif gebco_08_rev_elev_AB_grey_geo_resampled_mercador.tif
