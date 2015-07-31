@@ -22,17 +22,14 @@ gebco_08_rev_elev_AB_grey_geo.tif: gebco_08_rev_elev_A1_grey_geo.tif gebco_08_re
 gebco_08_rev_elev_AB_grey_geo_resampled.tif: gebco_08_rev_elev_AB_grey_geo.tif
 	gdalwarp -tr 0.05 -0.05 -r average gebco_08_rev_elev_AB_grey_geo.tif gebco_08_rev_elev_AB_grey_geo_resampled.tif
 
-gebco_08_rev_elev_AB_grey_geo_resampled_mercador.tif: gebco_08_rev_elev_AB_grey_geo_resampled.tif
-	gdalwarp -t_srs EPSG:3857 gebco_08_rev_elev_AB_grey_geo_resampled.tif gebco_08_rev_elev_AB_grey_geo_resampled_mercador.tif
-
-gebco_08_rev_elev_AB_grey_geo_resampled_mercador_cropped.tif: gebco_08_rev_elev_AB_grey_geo_resampled_mercador.tif cb_2014_us_state_20m_48.shp
+gebco_08_rev_elev_AB_grey_geo_resampled_cropped.tif: gebco_08_rev_elev_AB_grey_geo_resampled.tif cb_2014_us_state_20m_48.shp
 	gdalwarp -overwrite -of GTiff -cutline cb_2014_us_state_20m_48.shp -crop_to_cutline \
 		gebco_08_rev_elev_AB_grey_geo_resampled_mercador.tif \
 		gebco_08_rev_elev_AB_grey_geo_resampled_mercador_cropped.tif
 
-gebco_fl/contour.shp: gebco_08_rev_elev_AB_grey_geo_resampled_mercador_cropped.tif
+gebco_fl/contour.shp: gebco_08_rev_elev_AB_grey_geo_resampled_cropped.tif
 	gdal_contour -a elevation -snodata 0 -i 7 \
-		gebco_08_rev_elev_AB_grey_geo_resampled_mercador_cropped.tif gebco_fl
+		gebco_08_rev_elev_AB_grey_geo_resampled_cropped.tif gebco_fl
 
 contour.topojson: gebco_fl/contour.shp
-	topojson -p -o contour.topojson --width 780 gebco_fl/contour.shp
+	topojson -p -o contour.topojson gebco_fl/contour.shp
