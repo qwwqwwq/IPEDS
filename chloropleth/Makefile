@@ -31,7 +31,7 @@ gebco_08_rev_elev_AB_grey_geo_resampled_cropped.tif: gebco_08_rev_elev_AB_grey_g
 		gebco_08_rev_elev_AB_grey_geo_resampled_cropped.tif
 
 gebco_08_rev_elev_AB_grey_geo_resampled_cropped_reproj.tif: gebco_08_rev_elev_AB_grey_geo_resampled_cropped.tif
-    gdalwarp -t_srs EPSG:3857 gebco_08_rev_elev_AB_grey_geo_resampled_cropped_reproj.tif gebco_08_rev_elev_AB_grey_geo_resampled_cropped.tif
+	gdalwarp -t_srs EPSG:3857 gebco_08_rev_elev_AB_grey_geo_resampled_cropped.tif gebco_08_rev_elev_AB_grey_geo_resampled_cropped_reproj.tif
 
 gebco_fl/contour.shp: gebco_08_rev_elev_AB_grey_geo_resampled_cropped_reproj.tif
 	gdal_contour -a elevation -snodata 0 -i 7 \
