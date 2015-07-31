@@ -14,7 +14,7 @@ cb_2014_us_state_20m.shp: cb_2014_us_state_20m.zip
 	touch cb_2014_us_state_20m.shp
 
 cb_2014_us_state_20m_reproj.shp: cb_2014_us_state_20m.shp
-    ogr2ogr -t_srs EPSG:4326 cb_2014_us_state_20m_reproj.shp cb_2014_us_state_20m.shp
+	ogr2ogr -t_srs EPSG:4326 cb_2014_us_state_20m_reproj.shp cb_2014_us_state_20m.shp
 
 cb_2014_us_state_20m_reproj_48.shp: cb_2014_us_state_20m_reproj.shp
 	ogr2ogr -where "STUSPS != 'AK' AND STUSPS != 'HI' AND STUSPS != 'PR'" cb_2014_us_state_20m_reproj_48.shp cb_2014_us_state_20m_reproj.shp
@@ -25,7 +25,7 @@ gebco_08_rev_elev_AB_grey_geo.tif: gebco_08_rev_elev_A1_grey_geo.tif gebco_08_re
 gebco_08_rev_elev_AB_grey_geo_resampled.tif: gebco_08_rev_elev_AB_grey_geo.tif
 	gdalwarp -tr 0.05 -0.05 -r average gebco_08_rev_elev_AB_grey_geo.tif gebco_08_rev_elev_AB_grey_geo_resampled.tif
 
-gebco_08_rev_elev_AB_grey_geo_resampled_cropped.tif: gebco_08_rev_elev_AB_grey_geo_resampled.tif cb_2014_us_state_20m_48.shp
+gebco_08_rev_elev_AB_grey_geo_resampled_cropped.tif: gebco_08_rev_elev_AB_grey_geo_resampled.tif cb_2014_us_state_20m_reproj_48.shp
 	gdalwarp -overwrite -of GTiff -cutline cb_2014_us_state_20m_reproj_48.shp -crop_to_cutline \
 		gebco_08_rev_elev_AB_grey_geo_resampled.tif \
 		gebco_08_rev_elev_AB_grey_geo_resampled_cropped.tif
