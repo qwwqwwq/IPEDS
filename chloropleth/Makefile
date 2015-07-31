@@ -30,9 +30,9 @@ gebco_08_rev_elev_AB_grey_geo_resampled_cropped.tif: gebco_08_rev_elev_AB_grey_g
 		gebco_08_rev_elev_AB_grey_geo_resampled.tif \
 		gebco_08_rev_elev_AB_grey_geo_resampled_cropped.tif
 
-gebco_fl/contour.shp: gebco_08_rev_elev_AB_grey_geo_resampled_cropped.tif
+gebco_fl/contour.shp: gebco_08_rev_elev_AB_grey_geo_resampled.tif
 	gdal_contour -a elevation -snodata 0 -i 7 \
-		gebco_08_rev_elev_AB_grey_geo_resampled_cropped.tif gebco_fl
+		gebco_08_rev_elev_AB_grey_geo_resampled.tif gebco_fl
 
 contour.topojson: gebco_fl/contour.shp
 	topojson -p -o contour.topojson --projection 'd3.geo.albersUsa()' --width 720 gebco_fl/contour.shp
