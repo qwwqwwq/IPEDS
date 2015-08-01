@@ -2,7 +2,7 @@ all: north_america lower_48
 
 lower_48: lower_48_contour.topojson
 
-north_america: north_america.topojson
+north_america: north_america_contour.topojson
 
 cb_2014_us_state_20m.zip:
 	wget "http://www2.census.gov/geo/tiger/GENZ2014/shp/cb_2014_us_state_20m.zip"
