@@ -35,20 +35,17 @@ body {
 var width = 960,
     height = 600;
 
-var color = d3.scale.linear()
-    .domain([0, 100])
-    .range(["#4575b4", "#ffffbf", "#a50026"])
-    .interpolate(d3.interpolateHcl);
+var color = d3.scale.category10();
 
 var x = d3.scale.linear()
-    .domain([-40, 40])
-    .range([0, 240]);
+    .domain([0, 100])
+    .range([0, 100]);
 
 var xAxis = d3.svg.axis()
     .scale(x)
     .orient("bottom")
     .tickSize(13)
-    .tickFormat(d3.format("+.0f"));
+    .tickFormat(d3.format(".0f"));
 
 var canvas = d3.select("body").append("canvas")
     .attr("width", width)
@@ -69,7 +66,7 @@ var svg = d3.select("body").append("svg")
 
 svg.selectAll("rect")
     .data(pair(x.ticks(10)))
-  .enter().append("rect")
+      .enter().append("rect")
     .attr("height", 8)
     .attr("x", function(d) { return x(d[0]); })
     .attr("width", function(d) { return x(d[1]) - x(d[0]); })
@@ -78,7 +75,7 @@ svg.selectAll("rect")
 svg.call(xAxis).append("text")
     .attr("class", "caption")
     .attr("y", -6)
-    .text("Avg. annual extreme minimum temperature, °F");
+    .text("Elevation");
 
 d3.json("north_america_contour.topojson", function(error, ophz) {
   if (error) throw error;
