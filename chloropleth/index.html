@@ -77,7 +77,7 @@ svg.call(xAxis).append("text")
     .attr("y", -6)
     .text("Elevation");
 
-d3.json("north_america_contour.topojson", function(error, ophz) {
+d3.json("contour.topojson", function(error, ophz) {
   if (error) throw error;
 
   topojson.feature(ophz, ophz.objects.contour)
