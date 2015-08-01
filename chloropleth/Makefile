@@ -38,11 +38,11 @@ lower_48/contour.shp: gebco_08_rev_elev_AB_grey_geo_resampled_cropped.tif
 	gdal_contour -a elevation -fl 1 3 5 7 10 20 30 40 50 75 100 gebco_08_rev_elev_AB_grey_geo_resampled_cropped.tif lower_48
 
 lower_48_contour.topojson: lower_48/contour.shp
-	topojson -p -o contour.topojson --projection 'd3.geo.albers()' --width 720 lower_48/contour.shp
+	topojson -p -o lower_48_contour.topojson --projection 'd3.geo.albers()' --width 720 lower_48/contour.shp
 
 north_america/contour.shp: gebco_08_rev_elev_AB_grey_geo_resampled.tif
-	gdal_contour -a elevation -fl 1 3 5 7 10 20 30 40 50 75 100 gebco_08_rev_elev_AB_grey_geo_resampled.tif north_america
+	gdal_contour -a elevation -fl 1 3 5 10 30 50 75 100 gebco_08_rev_elev_AB_grey_geo_resampled.tif north_america
 
 north_america_contour.topojson: north_america/contour.shp
-	topojson -p -o contour.topojson --projection 'd3.geo.albers()' --width 720 north_america/contour.shp
+	topojson -p -o north_america_contour.topojson --projection 'd3.geo.albers()' --width 720 north_america/contour.shp
 
