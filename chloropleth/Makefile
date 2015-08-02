@@ -21,29 +21,24 @@ cb_2014_us_state_20m_reproj.shp: cb_2014_us_state_20m.shp
 cb_2014_us_state_20m_reproj_48.shp: cb_2014_us_state_20m_reproj.shp
 	ogr2ogr -where "STUSPS != 'AK' AND STUSPS != 'HI' AND STUSPS != 'PR'" cb_2014_us_state_20m_reproj_48.shp cb_2014_us_state_20m_reproj.shp
 
-gebco_08_rev_elev_AB_grey_geo_cropped.tif: gebco_08_rev_elev_AB_grey_geo.tif cb_2014_us_state_20m_reproj_48.shp
-	gdalwarp -overwrite -of GTiff -cutline cb_2014_us_state_20m_reproj_48.shp -crop_to_cutline \
-		gebco_08_rev_elev_AB_grey_geo.tif \
-		gebco_08_rev_elev_AB_grey_geo_cropped.tif
-
-level1.shp: gebco_08_rev_elev_AB_grey_geo_cropped.tif
-	gdal_calc.py -A gebco_08_rev_elev_AB_grey_geo_cropped.tif --outfile=level1.tif --calc="1*(A>0)" --NoDataValue=0
+level1.shp: gebco_08_rev_elev_AB_grey_geo.tif
+	gdal_calc.py -A gebco_08_rev_elev_AB_grey_geo.tif --outfile=level1.tif --calc="1*(A>0)" --NoDataValue=0
 	gdal_polygonize.py level1.tif -f "ESRI Shapefile" level1.shp contour elevation
 
-level3.shp: gebco_08_rev_elev_AB_grey_geo_cropped.tif
-	gdal_calc.py -A gebco_08_rev_elev_AB_grey_geo_cropped.tif --outfile=level3.tif --calc="3*(A>3)" --NoDataValue=0
+level3.shp: gebco_08_rev_elev_AB_grey_geo.tif
+	gdal_calc.py -A gebco_08_rev_elev_AB_grey_geo.tif --outfile=level3.tif --calc="3*(A>3)" --NoDataValue=0
 	gdal_polygonize.py level3.tif -f "ESRI Shapefile" level3.shp contour elevation
 
-level7.shp: gebco_08_rev_elev_AB_grey_geo_cropped.tif
-	gdal_calc.py -A gebco_08_rev_elev_AB_grey_geo_cropped.tif --outfile=level7.tif --calc="7*(A>7)" --NoDataValue=0
+level7.shp: gebco_08_rev_elev_AB_grey_geo.tif
+	gdal_calc.py -A gebco_08_rev_elev_AB_grey_geo.tif --outfile=level7.tif --calc="7*(A>7)" --NoDataValue=0
 	gdal_polygonize.py level7.tif -f "ESRI Shapefile" level7.shp contour elevation
 
-level10.shp: gebco_08_rev_elev_AB_grey_geo_cropped.tif
-	gdal_calc.py -A gebco_08_rev_elev_AB_grey_geo_cropped.tif --outfile=level10.tif --calc="10*(A>10)" --NoDataValue=0
+level10.shp: gebco_08_rev_elev_AB_grey_geo.tif
+	gdal_calc.py -A gebco_08_rev_elev_AB_grey_geo.tif --outfile=level10.tif --calc="10*(A>10)" --NoDataValue=0
 	gdal_polygonize.py level10.tif -f "ESRI Shapefile" level10.shp contour elevation
 
-level20.shp: gebco_08_rev_elev_AB_grey_geo_cropped.tif
-	gdal_calc.py -A gebco_08_rev_elev_AB_grey_geo_cropped.tif --outfile=level20.tif --calc="20*(A>20)" --NoDataValue=0
+level20.shp: gebco_08_rev_elev_AB_grey_geo.tif
+	gdal_calc.py -A gebco_08_rev_elev_AB_grey_geo.tif --outfile=level20.tif --calc="20*(A>20)" --NoDataValue=0
 	gdal_polygonize.py level20.tif -f "ESRI Shapefile" level20.shp contour elevation
 
 levels.shp: level1.shp level3.shp level7.shp level10.shp level20.shp
@@ -53,5 +48,8 @@ levels.shp: level1.shp level3.shp level7.shp level10.shp level20.shp
 	ogr2ogr -update -append levels.shp level10.shp
 	ogr2ogr -update -append levels.shp level20.shp
 
+levels_clipped.shp: levels.shp cb_2014_us_state_20m_reproj.shp
+	ogr2ogr -clipsrc cb_2014_us_state_20m_reproj.shp levels_clipped.shp levels.shp
+
 lower_48_contour.topojson: levels.shp
-	topojson -p -o lower_48_contour.topojson --projection 'd3.geo.albers()' --width 720 levels.shp
+	topojson -p -o lower_48_contour.topojson --projection 'd3.geo.albers()' --width 720 levels_clipped.shp

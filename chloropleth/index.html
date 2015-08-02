@@ -35,11 +35,11 @@ body {
 var width = 960,
     height = 600;
 
-var color = d3.scale.category10();
+var color = d3.scale.category20();
 
 var x = d3.scale.linear()
-    .domain([0, 100])
-    .range([0, 100]);
+    .domain([0, 20])
+    .range([0, 200]);
 
 var xAxis = d3.svg.axis()
     .scale(x)
@@ -80,7 +80,7 @@ svg.call(xAxis).append("text")
 d3.json("lower_48_contour.topojson", function(error, ophz) {
   if (error) throw error;
 
-  topojson.feature(ophz, ophz.objects.contour)
+  topojson.feature(ophz, ophz.objects.levels)
       .features
       .sort(function(a, b) { return a.elevation - b.elevation; })
       .forEach(render);
@@ -93,8 +93,9 @@ function pair(array) {
 }
 
 function render(d) {
-  var t = d.properties.elevation;
-  context.fillStyle = color(t);
+  var elev = d.properties.elevation;
+    if (elev != 10) return;
+  context.fillStyle = color(elev);
   context.beginPath();
   path(d);
   context.fill();
