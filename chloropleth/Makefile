@@ -54,5 +54,5 @@ levels.shp: level1.shp level3.shp level7.shp level10.shp level20.shp
 levels_clipped.shp: levels.shp cb_2014_us_state_20m_reproj.shp
 	ogr2ogr -clipsrc cb_2014_us_state_20m_reproj.shp levels_clipped.shp levels.shp
 
-lower_48_contour.topojson: levels.shp
+lower_48_contour.topojson: levels_clipped.shp
 	topojson -p -o lower_48_contour.topojson --projection 'd3.geo.albers()' --width 720 levels_clipped.shp
