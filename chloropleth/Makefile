@@ -28,24 +28,30 @@ gebco_08_rev_elev_AB_grey_geo_cropped.tif: gebco_08_rev_elev_AB_grey_geo.tif cb_
 
 level1.shp: gebco_08_rev_elev_AB_grey_geo_cropped.tif
 	gdal_calc.py -A gebco_08_rev_elev_AB_grey_geo_cropped.tif --outfile=level1.tif --calc="1*(A>0)" --NoDataValue=0
-	gdal_polygonize.py level1.tif -f "ESRI Shapefile" level1.shp level_1 elevation
+	gdal_polygonize.py level1.tif -f "ESRI Shapefile" level1.shp contour elevation
 
 level3.shp: gebco_08_rev_elev_AB_grey_geo_cropped.tif
 	gdal_calc.py -A gebco_08_rev_elev_AB_grey_geo_cropped.tif --outfile=level3.tif --calc="3*(A>3)" --NoDataValue=0
-	gdal_polygonize.py level3.tif -f "ESRI Shapefile" level3.shp level_3 elevation
+	gdal_polygonize.py level3.tif -f "ESRI Shapefile" level3.shp contour elevation
 
 level7.shp: gebco_08_rev_elev_AB_grey_geo_cropped.tif
 	gdal_calc.py -A gebco_08_rev_elev_AB_grey_geo_cropped.tif --outfile=level7.tif --calc="7*(A>7)" --NoDataValue=0
-	gdal_polygonize.py level7.tif -f "ESRI Shapefile" level7.shp level_7 elevation
+	gdal_polygonize.py level7.tif -f "ESRI Shapefile" level7.shp contour elevation
 
 level10.shp: gebco_08_rev_elev_AB_grey_geo_cropped.tif
 	gdal_calc.py -A gebco_08_rev_elev_AB_grey_geo_cropped.tif --outfile=level10.tif --calc="10*(A>10)" --NoDataValue=0
-	gdal_polygonize.py level10.tif -f "ESRI Shapefile" level10.shp level_10 elevation
+	gdal_polygonize.py level10.tif -f "ESRI Shapefile" level10.shp contour elevation
 
 level20.shp: gebco_08_rev_elev_AB_grey_geo_cropped.tif
 	gdal_calc.py -A gebco_08_rev_elev_AB_grey_geo_cropped.tif --outfile=level20.tif --calc="20*(A>20)" --NoDataValue=0
-	gdal_polygonize.py level20.tif -f "ESRI Shapefile" level20.shp level_20 elevation
+	gdal_polygonize.py level20.tif -f "ESRI Shapefile" level20.shp contour elevation
+
+levels.shp: level1.shp level3.shp level7.shp level10.shp level20.shp
+    ogr2ogr levels.shp level1.shp
+    ogr2ogr -update -append levels.shp level3.shp
+    ogr2ogr -update -append levels.shp level7.shp
+    ogr2ogr -update -append levels.shp level10.shp
+    ogr2ogr -update -append levels.shp level20.shp
 
 lower_48_contour.topojson: level1.shp level3.shp level7.shp level10.shp level20.shp
-	topojson -p -o lower_48_contour --projection 'd3.geo.albers()' --width 720 \
-		level1.shp level3.shp level7.shp level10.shp level20.shp
+	topojson -p -o lower_48_contour --projection 'd3.geo.albers()' --width 720 levels.shp
