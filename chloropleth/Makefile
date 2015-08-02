@@ -47,11 +47,11 @@ level20.shp: gebco_08_rev_elev_AB_grey_geo_cropped.tif
 	gdal_polygonize.py level20.tif -f "ESRI Shapefile" level20.shp contour elevation
 
 levels.shp: level1.shp level3.shp level7.shp level10.shp level20.shp
-    ogr2ogr levels.shp level1.shp
-    ogr2ogr -update -append levels.shp level3.shp
-    ogr2ogr -update -append levels.shp level7.shp
-    ogr2ogr -update -append levels.shp level10.shp
-    ogr2ogr -update -append levels.shp level20.shp
+	ogr2ogr levels.shp level1.shp
+	ogr2ogr -update -append levels.shp level3.shp
+	ogr2ogr -update -append levels.shp level7.shp
+	ogr2ogr -update -append levels.shp level10.shp
+	ogr2ogr -update -append levels.shp level20.shp
 
-lower_48_contour.topojson: level1.shp level3.shp level7.shp level10.shp level20.shp
-	topojson -p -o lower_48_contour --projection 'd3.geo.albers()' --width 720 levels.shp
+lower_48_contour.topojson: levels.shp
+	topojson -p -o lower_48_contour.topojson --projection 'd3.geo.albers()' --width 720 levels.shp
