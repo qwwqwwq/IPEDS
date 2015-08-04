@@ -11,10 +11,13 @@ all: levels.shp
 #gebco_08_rev_elev_B1_grey_geo.tif:
 #	wget "http://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73934/gebco_08_rev_elev_B1_grey_geo.tif"
 
-#lower_48_dem.tif:
-#    gdalwarp gebco_08_rev_elev_AB_grey_geo.tif gebco_08_rev_elev_B1_grey_geo.tif gebco_08_rev_elev_A1_grey_geo.tif
-#    gdal_translate -projwin -130.946280992 53.1446280992 -59.9876033058 20.7892561983 gebco_08_rev_elev_AB_grey_geo.tif lower_48_full_dem.tif
-#    gdalwarp -tr 0.03 -0.03 -r average lower_48_full_dem.tif lower_48_dem.tif
+lower_48_dem.tif:
+#	gdalwarp gebco_08_rev_elev_AB_grey_geo.tif gebco_08_rev_elev_B1_grey_geo.tif gebco_08_rev_elev_A1_grey_geo.tif
+#	gdal_translate -projwin -130.946280992 53.1446280992 -59.9876033058 20.7892561983 gebco_08_rev_elev_AB_grey_geo.tif lower_48_full_dem.tif
+#	gdalwarp -tr 0.03 -0.03 -r average lower_48_full_dem.tif lower_48_small_dem.tif
+	gdalwarp -overwrite -of GTiff -cutline us_lower_48_outline.shp -crop_to_cutline gebco_08_rev_elev_AB_grey_geo_resampled.tif lower_48_dem_s.tif
+	gdalwarp -t_srs EPSG:5070 lower_48_dem_s.tif lower_48_dem.tif
+
 
 #cb_2014_us_state_20m.shp: cb_2014_us_state_20m.zip
 #	unzip cb_2014_us_state_20m.zip
@@ -57,5 +60,5 @@ levels.shp: level1.shp level3.shp level7.shp level10.shp level20.shp
 #levels_clipped.shp: levels.shp cb_2014_us_state_20m_reproj_48.shp
 #	ogr2ogr -clipsrc cb_2014_us_state_20m_reproj_48.shp levels_clipped.shp levels.shp
 
-#lower_48_contour.topojson: levels_clipped.shp
-#	topojson -p -o lower_48_contour.topojson --projection 'd3.geo.albers()' --width 720 levels_clipped.shp
+lower_48_contour.topojson: levels.shp
+	topojson -p -o lower_48_contour.topojson --projection 'd3.geo.albers()' --width 720 levels.shp
