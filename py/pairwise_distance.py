@@ -27,8 +27,14 @@ def csv_points(filename):
     with open(filename) as f:
         reader = csv.reader(f)
         for row in reader:
-            if len(row) == 2:
-                yield (float(row[0]), float(row[1]))
+            yield (float(row[0]), float(row[1]))
+
+
+def instituion_points(filename):
+    with open(filename) as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            yield ((float(row['LONG']), float(row['LAT'])), float(row['SIZECAT']))
 
 
 def get_distances(area_file, points_of_interest_file, output_file):
@@ -36,9 +42,10 @@ def get_distances(area_file, points_of_interest_file, output_file):
         writer = csv.writer(of)
         for area_point in csv_points(area_file):
             distance = 0
-            for poi_point in csv_points(points_of_interest_file):
-                distance += 1 / pow(haversine(area_point, poi_point), 2)
+            for poi_point, size_category in instituion_points(points_of_interest_file):
+                distance += size_category / pow(haversine(area_point, poi_point[:2]), 2)
             writer.writerow([area_point[0], area_point[1], distance])
+
 
 def get_args():
     parser = argparse.ArgumentParser()
