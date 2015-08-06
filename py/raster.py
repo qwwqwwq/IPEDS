@@ -8,7 +8,7 @@ from itertools import product
 def coords(x_size, y_size, x_min, y_min, x_step, y_step):
     cartesian_iterator = product(numpy.arange(x_size), numpy.arange(y_size))
     for x, y in cartesian_iterator:
-        yield (x_min + (x * x_step), y_min + (y * y_step))
+        yield x, y, x_min + (x * x_step), y_min + (y * y_step), 0
 
 def geotiff_to_csv(geotiff, output):
     i = gdal.Open(geotiff)
