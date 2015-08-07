@@ -6,7 +6,7 @@ def main():
     del institutional_basic_info['Highest level of offering']
     del institutional_basic_info['Undergraduate offering']
 
-    institutional_basic_info.dropna().to_csv("map_dataset.csv", header = ['UNITID', 'NAME', 'SIZECAT', 'LONG', 'LAT'])
+    institutional_basic_info.dropna().to_csv("map_dataset.csv", header=False)
 
 if __name__ == '__main__':
     main()

@@ -22,7 +22,7 @@ public class PairwiseDistance {
 
         Broadcast<List<InstitutionPoint>> broadcast = sc.broadcast(read(Paths.get(args[0])));
 
-        JavaRDD<String> rasterCoordinates = sc.textFile(args[1]);
+        JavaRDD<String> rasterCoordinates = sc.textFile(args[1], Integer.parseInt(args[3]));
         JavaRDD<String> mapped = rasterCoordinates.map(new Mapper(broadcast));
         mapped.saveAsTextFile(args[2]);
     }

@@ -9,7 +9,6 @@ import java.util.List;
 public class Mapper implements Function<String, String> {
 
     private final Broadcast<List<InstitutionPoint>> broadcast;
-    private final static CSVFormat FORMAT = CSVFormat.RFC4180;
 
     public Mapper(Broadcast<List<InstitutionPoint>> broadcast) {
         this.broadcast = broadcast;
