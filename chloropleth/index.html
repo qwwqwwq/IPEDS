@@ -26,6 +26,13 @@ body {
   shape-rendering: crispEdges;
 }
 
+.border {
+    fill: none;
+    stroke: #fff;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
 </style>
 <body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
@@ -66,6 +73,11 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(60," + (height - 60) + ")");
 
+var borders_svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+        .append("g");
+
 svg.selectAll("rect")
     .data(pair(x.ticks(10)))
       .enter().append("rect")
@@ -79,13 +91,20 @@ svg.call(xAxis).append("text")
     .attr("y", -6)
     .text("Elevation");
 
-d3.json("lower_48_contour.topojson", function(error, ophz) {
+d3.json("../gis/lower_48_contour.topojson", function(error, ophz) {
   if (error) throw error;
 
   topojson.feature(ophz, ophz.objects.levels)
       .features
       .sort(function(a, b) { return a.elevation - b.elevation; })
       .forEach(render);
+
+    borders_svg.append("path")
+        .datum(topojson.mesh(ophz, ophz.objects.us_lower_48_states, function(a, b) { return a !== b }))
+        .attr("class", "border")
+        .attr("d", path);
+
+
 });
 
 function pair(array) {
