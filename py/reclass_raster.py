@@ -14,7 +14,7 @@ def get_args():
 
 def get_new_arr(fn, x, y):
     df = pandas.read_csv(fn, names=['x', 'y', 'lon', 'lat', 'value'])
-    return numpy.uint16(numpy.reshape((df.sort(['x', 'y']).value).round(), (x, y)).T)
+    return numpy.uint16(numpy.reshape((df.sort(['x', 'y']).value).round(), (y, x)).T)
 
 def reclass(geotiff_fn, csv_fn, ofn):
     # register all of the GDAL drivers
