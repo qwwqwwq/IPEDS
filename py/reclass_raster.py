@@ -1,4 +1,3 @@
-__author__ = 'jeffreyquinn'
 import numpy
 import sys
 import argparse
@@ -13,16 +12,16 @@ def get_args():
     parser.add_argument('outfile')
     return parser.parse_args()
 
-def get_new_arr(fn):
+def get_new_arr(fn, x, y):
     df = pandas.read_csv(fn, names=['x', 'y', 'lon', 'lat', 'value'])
-    return numpy.uint16(numpy.reshape((df.sort(['x', 'y']).value).round(), (1156,  498)).T)
+    return numpy.uint16(numpy.reshape((df.sort(['x', 'y']).value).round(), (x, y)).T)
 
-def reclass(fn, new_arr, ofn):
+def reclass(geotiff_fn, csv_fn, ofn):
     # register all of the GDAL drivers
     gdal.AllRegister()
 
     # open the image
-    inDs = gdal.Open(fn)
+    inDs = gdal.Open(geotiff_fn)
     if inDs is None:
         print 'Could not open image file'
         sys.exit(1)
@@ -32,7 +31,7 @@ def reclass(fn, new_arr, ofn):
     rows = inDs.RasterYSize
     cols = inDs.RasterXSize
 
-    cropData = band1.ReadAsArray(0,0,cols,rows)
+    new_arr = get_new_arr(csv_fn, rows, cols)
 
     # create the output image
     driver = inDs.GetDriver()
@@ -56,8 +55,7 @@ def reclass(fn, new_arr, ofn):
 
 def main():
     args = get_args()
-    new_arr = get_new_arr(args.incsv)
-    reclass(args.infile, new_arr, args.outfile)
+    reclass(args.infile, args.incsv, args.outfile)
 
 if __name__ == '__main__':
     main()

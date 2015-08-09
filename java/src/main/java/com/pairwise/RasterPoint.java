@@ -27,6 +27,10 @@ public class RasterPoint implements Serializable {
         this.value = value;
     }
 
+    public double getValue() {
+        return value;
+    }
+
     public String toCsvString() {
         return Joiner.on(",").join(new Object[] {xIndex, yIndex, x, y, value});
     }

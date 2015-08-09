@@ -35,10 +35,12 @@ body {
 var width = 960,
     height = 600;
 
-var color = d3.scale.category20();
+var color = d3.scale.linear()
+        .domain([0, 20, 40])
+        .range(["#edf8b1","#7fcdbb","#2c7fb8"]);
 
 var x = d3.scale.linear()
-    .domain([0, 200])
+    .domain([0, 35])
     .range([0, 200]);
 
 var xAxis = d3.svg.axis()
