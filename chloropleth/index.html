@@ -9,7 +9,7 @@ body {
 .key {
   font: 10px sans-serif;
   position: absolute;
-  top: 0;
+  top: 90px;
   left: 0;
 }
 
@@ -23,42 +23,65 @@ body {
 
 .key line {
   stroke: #000;
-  shape-rendering: crispEdges;
+  shape-rendering: geometricPrecision;
 }
 
-.border {
-    fill: none;
-    stroke: #fff;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+@font-face {
+    font-family: usDeclaration;
+    src: url(USDeclaration.ttf);
+}
+
+h1 {
+    width: 900px;
+    text-align: center;
+    margin-bottom: -15px;
+    margin-top: -5px;
+    font-family: usDeclaration;
+}
+
+p {
+    width: 900px;
+    text-align: center;
+    margin-bottom: -15px;
+    font-family: 'EB Garamond', serif;
+}
+
+
+
+.chloropleth {
 }
 
 </style>
 <body>
+<h1>Land of Opportunity</h1>
+<p>Density of 4-year colleges in the continental United States</p>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.js"></script>
+<link href='http://fonts.googleapis.com/css?family=EB+Garamond' rel='stylesheet' type='text/css'>
 <script>
 
 var width = 960,
     height = 600;
 
 var color = d3.scale.linear()
-        .domain([0, 20, 40])
-        .range(["#edf8b1","#7fcdbb","#2c7fb8"]);
+        .domain([0, 7, 13, 50])
+        //.range(["#ffffcc","#a1dab4","#41b6c4","#113B6D"]);
+.range(["#d7191c","#fdae61","#a6d96a","#1a9641"].reverse());
 
 var x = d3.scale.linear()
-    .domain([0, 35])
-    .range([0, 200]);
+    .domain([0, 50])
+    .range([0, 250]);
 
 var xAxis = d3.svg.axis()
     .scale(x)
     .orient("bottom")
-    .tickSize(13)
-    .tickFormat(d3.format(".0f"));
+    .tickSize(8)
+    .tickFormat(''); // No tick values
 
 var canvas = d3.select("body").append("canvas")
     .attr("width", width)
-    .attr("height", height);
+    .attr("height", height)
+        .attr("class", "chloropleth");
 
 var context = canvas.node().getContext("2d");
 
@@ -66,21 +89,19 @@ var path = d3.geo.path()
     .projection(null)
     .context(context);
 
+var borderPath = d3.geo.path().projection(null)
+        .context(context);
+
 var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height)
     .attr("class", "key")
-  .append("g")
-    .attr("transform", "translate(60," + (height - 60) + ")");
-
-var borders_svg = d3.select("body").append("svg")
-    .attr("width", width)
-    .attr("height", height)
-        .append("g");
+    .append("g")
+    .attr("transform", "translate(60," + (height - 70) + ")");
 
 svg.selectAll("rect")
-    .data(pair(x.ticks(10)))
-      .enter().append("rect")
+    .data(pair(x.ticks(12)))
+    .enter().append("rect")
     .attr("height", 8)
     .attr("x", function(d) { return x(d[0]); })
     .attr("width", function(d) { return x(d[1]) - x(d[0]); })
@@ -89,23 +110,27 @@ svg.selectAll("rect")
 svg.call(xAxis).append("text")
     .attr("class", "caption")
     .attr("y", -6)
-    .text("Elevation");
+    .text("Fewer Colleges");
 
-d3.json("../gis/lower_48_contour.topojson", function(error, ophz) {
+svg.call(xAxis).append("text")
+    .attr("class", "caption")
+    .attr("y", -6)
+    .attr("x", 182)
+    .text("More Colleges");
+
+d3.json("../gis/lower_48_contour.topojson", function(error, contour) {
   if (error) throw error;
 
-  topojson.feature(ophz, ophz.objects.levels)
+  topojson.feature(contour, contour.objects.levels)
       .features
       .sort(function(a, b) { return a.elevation - b.elevation; })
       .forEach(render);
 
-    borders_svg.append("path")
-        .datum(topojson.mesh(ophz, ophz.objects.us_lower_48_states, function(a, b) { return a !== b }))
-        .attr("class", "border")
-        .attr("d", path);
-
-
+  topojson.feature(contour, contour.objects.us_lower_48_states_individual)
+         .features
+         .forEach(renderBorder);
 });
+
 
 function pair(array) {
   return array.slice(1).map(function(b, i) {
@@ -121,5 +146,12 @@ function render(d) {
   context.fill();
 }
 
+function renderBorder(d) {
+  context.strokeStyle = "rgba(255,255,255,0.8)";
+  context.lineWidth = 0.5;
+  context.beginPath();
+  borderPath(d);
+  context.stroke();
+}
 </script>
 

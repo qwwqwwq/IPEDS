@@ -24,8 +24,11 @@ gis/cb_2014_us_state_20m.shp: gis/cb_2014_us_state_20m.zip
 gis/cb_2014_us_state_20m_reproj.shp: gis/cb_2014_us_state_20m.shp
 	ogr2ogr -t_srs EPSG:5070 gis/cb_2014_us_state_20m_reproj.shp gis/cb_2014_us_state_20m.shp
 
-gis/us_lower_48_states.shp: gis/cb_2014_us_state_20m_reproj.shp
-	ogr2ogr -where "STUSPS != 'AK' AND STUSPS != 'HI' AND STUSPS != 'PR'" gis/us_lower_48_states.shp gis/cb_2014_us_state_20m_reproj.shp
+gis/us_lower_48_states_individual.shp: gis/cb_2014_us_state_20m_reproj.shp
+	ogr2ogr -where "STUSPS != 'AK' AND STUSPS != 'HI' AND STUSPS != 'PR'" gis/us_lower_48_states_individual.shp gis/cb_2014_us_state_20m_reproj.shp
+
+gis/us_lower_48_states.shp: gis/us_lower_48_states_individual.shp
+	ogr2ogr gis/us_lower_48_states.shp gis/us_lower_48_states_individual.shp  -dialect sqlite -sql "SELECT ST_Union(geometry) FROM us_lower_48_states_individual"
 
 ipeds_data/institution_coordinates_data.csv: ipeds_data/hd2013.csv
 	PYTHONPATH=py python py/bin/gen_map_dataset.py ipeds_data/institution_coordinates_data.csv
@@ -45,13 +48,13 @@ gis/raster_coordinates_data.csv: gis/lower_48_dem.tif
 	python py/geotiff_to_csv.py gis/lower_48_dem.tif gis/raster_coordinates_data.csv
 
 gis/raster_coordinates_reclassed.csv: gis/raster_coordinates_data.csv ipeds_data/institution_coordinates_data.csv java/target/pairwise-1.0-SNAPSHOT.jar
-	#PYTHONPATH=py python py/run_pairwise_calc.py \
-	#    --raster_csv gis/raster_coordinates_data.csv \
-	#    --institution_csv ipeds_data/institution_coordinates_data.csv \
-	#    --jar java/target/pairwise-1.0-SNAPSHOT.jar \
-	#    --output_s3_bucket jq-emr-bucket \
-	#    --output_s3_prefix ipeds_pairwise08082015-22-55-48 \
-	#    --output_file gis/raster_coordinates_reclassed.csv
+	PYTHONPATH=py python py/run_pairwise_calc.py \
+	    --raster_csv gis/raster_coordinates_data.csv \
+	    --institution_csv ipeds_data/institution_coordinates_data.csv \
+	    --jar java/target/pairwise-1.0-SNAPSHOT.jar \
+	    --output_s3_bucket jq-emr-bucket \
+	    --output_s3_prefix ipeds_pairwise`date +"%m%d%Y-%H-%M-%S"` \
+	    --output_file gis/raster_coordinates_reclassed.csv
 
 gis/lower_48_dem_reclassed.tif: gis/raster_coordinates_reclassed.csv gis/lower_48_dem.tif
 	PYHTONPATH=py python py/reclass_raster.py gis/lower_48_dem.tif gis/raster_coordinates_reclassed.csv gis/lower_48_dem_reclassed_s.tif
@@ -66,6 +69,4 @@ gis/levels.shp: gis/lower_48_dem_reclassed.tif
 	done
 
 gis/lower_48_contour.topojson: gis/levels.shp
-	topojson -p -o gis/lower_48_contour.topojson --width 720 gis/levels.shp gis/us_lower_48_states.shp
-
-#--output_s3_prefix ipeds_pairwise`date +"%m%d%Y-%H-%M-%S"` \
+	topojson -p -o gis/lower_48_contour.topojson --width 900 gis/levels.shp gis/us_lower_48_states_individual.shp
